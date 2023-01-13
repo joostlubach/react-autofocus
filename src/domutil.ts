@@ -60,3 +60,27 @@ export interface FocusFirstOptions extends FocusableSelectorOptions {
   default?: boolean
 }
 
+export function trapFocus(container: Element) {
+  const prevTabIndexes = new Map<Element, string | null>()
+
+  const selector     = focusableSelectors().join(', ')
+  const allFocusable = document.querySelectorAll(selector)
+
+  for (let i = 0; i < allFocusable.length; i++) {
+    const element = allFocusable[i]
+    if (container.contains(element)) { continue }
+
+    prevTabIndexes.set(element, element.getAttribute('tabindex'))
+    element.setAttribute('tabindex', '-1')
+  }
+
+  return () => {
+    for (const [element, tabIndex] of prevTabIndexes) {
+      if (tabIndex == null) {
+        element.removeAttribute('tabindex')
+      } else {
+        element.setAttribute('tabindex', tabIndex)
+      }
+    }
+  }
+}

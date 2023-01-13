@@ -2,10 +2,12 @@ import React from 'react'
 import { useTimer } from 'react-timer'
 import { isFunction } from 'lodash'
 import { memo } from '~/ui/component'
-import { focusFirst, FocusFirstOptions } from './domutil'
+import { usePrevious } from '~/ui/hooks'
+import { focusFirst, FocusFirstOptions, trapFocus } from './domutil'
 
 interface AutofocusContext {
-  enabled: boolean
+  enabled:       boolean
+  containerRef?: React.RefObject<Element> | (() => Element | null | undefined)
 }
 
 const AutofocusContext = React.createContext<AutofocusContext>({
@@ -26,16 +28,26 @@ export interface AutofocusProviderProps {
 
   /**
    * Optionally specify a default focus target. The value `true` is interpreted as: the first focusable
-   * component (see configuration). Any string value is interpreted as a selector. Note that you have
-   * to specify {@link containerRef} as well for this to work.
+   * component (see configuration). Any string value is interpreted as a selector.
+   *
+   * Note that you have to specify {@link containerRef} as well for this to work.
    */
   defaultFocus?: boolean | string | FocusFirstOptions
 
   /**
-   * Specify a ref to the container element that contains the focusable components. This is required
-   * for {@link defaultFocus} to work.
+   * Set to true to trap the focus in this container, i.e. to prevent the focus from leaving this
+   * container. This is useful for modal dialogs, where you want to prevent the user from accidentally
+   * focusing something outside the dialog.
+   *
+   * Note that you have to specify {@link containerRef} as well for this to work.
    */
-  containerRef?: React.RefObject<Element> | (() => Element | null)
+  trap?: boolean
+
+  /**
+   * Specify a ref to the container element that contains the focusable components. This is required
+   * for {@link defaultFocus} or {@link trap} to work.
+   */
+  containerRef?: React.RefObject<Element> | (() => Element | null | undefined)
 
   /** Children. */
   children?: React.ReactNode
@@ -52,6 +64,7 @@ export const AutofocusProvider = memo('AutofocusProvider', (props: AutofocusProv
       <AutofocusProviderContent
         {...props}
         enabled={isFunction(enabled) ? enabled(parent.enabled) : enabled && parent.enabled}
+        containerRef={props.containerRef ?? parent.containerRef}
       />
     )
   }, [enabled, props])
@@ -74,13 +87,17 @@ const AutofocusProviderContent = memo('AutofocusProviderContent', (props: Autofo
     enabled,
     defaultFocus,
     containerRef,
+    trap,
     children,
   } = props
 
-  const timer = useTimer()
+  const timer       = useTimer()
+  const prevEnabled = usePrevious(enabled)
 
   React.useLayoutEffect(() => {
     if (defaultFocus === false) { return }
+    if (enabled === prevEnabled) { return }
+    if (!enabled) { return }
 
     // Use a timer, because we allow specific components with `autoFocus` functionality to go first. Only if
     // none of them have set their focus, the `focusFirst` function will actually set the focus (through its
@@ -97,9 +114,22 @@ const AutofocusProviderContent = memo('AutofocusProviderContent', (props: Autofo
 
       focusFirst(container, options)
     }, 0)
-  }, [containerRef, defaultFocus, timer])
+  }, [containerRef, defaultFocus, enabled, prevEnabled, timer])
 
-  const context = React.useMemo((): AutofocusContext => ({enabled}), [enabled])
+  React.useLayoutEffect(() => {
+    if (!trap) { return }
+    if (!enabled) { return }
+
+    const container = isFunction(containerRef) ? containerRef() : containerRef?.current
+    if (container == null) { return }
+
+    return trapFocus(container)
+  }, [trap, containerRef, enabled])
+
+  const context = React.useMemo((): AutofocusContext => ({
+    enabled,
+    containerRef,
+  }), [containerRef, enabled])
 
   return (
     <AutofocusContext.Provider value={context}>
@@ -123,6 +153,8 @@ export function useAutofocus(callback: () => any) {
 
   React.useLayoutEffect(() => {
     const prevEnabled = prevEnabledRef.current
+    prevEnabledRef.current = enabled
+
     if (!prevEnabled && enabled) {
       callback()
     }
