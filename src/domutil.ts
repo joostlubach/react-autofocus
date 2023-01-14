@@ -1,6 +1,14 @@
 import config from './config'
 
-export function focusFirst(container: Element, options: FocusFirstOptions = {}) {
+export function focusFirst(container: Element, options: FocusInContainerOptions = {}) {
+  focusFirstOrLast(container, true, options)
+}
+
+export function focusLast(container: Element, options: FocusInContainerOptions = {}) {
+  focusFirstOrLast(container, false, options)
+}
+
+function focusFirstOrLast(container: Element, first: boolean, options: FocusInContainerOptions = {}) {
   const {
     selector = focusableSelectors(options).join(', '),
     select   = false,
@@ -14,9 +22,10 @@ export function focusFirst(container: Element, options: FocusFirstOptions = {}) 
   const focusables = Array.from(container.querySelectorAll(selector)).filter(it => it instanceof HTMLElement) as HTMLElement[]
   if (focusables.length === 0) { return }
 
-  focusables[0].focus()
-  if (select && focusables[0] instanceof HTMLInputElement) {
-    focusables[0].select()
+  const focusable = first ? focusables[0] : focusables[focusables.length - 1]
+  focusable.focus()
+  if (select && focusable instanceof HTMLInputElement) {
+    focusable.select()
   }
 }
 
@@ -43,7 +52,7 @@ export interface FocusableSelectorOptions {
   exclude?:  string[]
 }
 
-export interface FocusFirstOptions extends FocusableSelectorOptions {
+export interface FocusInContainerOptions extends FocusableSelectorOptions {
   /**
    * Specify any specific CSS selector to find focusable elements.
    */
@@ -58,29 +67,4 @@ export interface FocusFirstOptions extends FocusableSelectorOptions {
    * Only perform the focus if no other element within the container is focused (default: true).
    */
   default?: boolean
-}
-
-export function trapFocus(container: Element) {
-  const prevTabIndexes = new Map<Element, string | null>()
-
-  const selector     = focusableSelectors().join(', ')
-  const allFocusable = document.querySelectorAll(selector)
-
-  for (let i = 0; i < allFocusable.length; i++) {
-    const element = allFocusable[i]
-    if (container.contains(element)) { continue }
-
-    prevTabIndexes.set(element, element.getAttribute('tabindex'))
-    element.setAttribute('tabindex', '-1')
-  }
-
-  return () => {
-    for (const [element, tabIndex] of prevTabIndexes) {
-      if (tabIndex == null) {
-        element.removeAttribute('tabindex')
-      } else {
-        element.setAttribute('tabindex', tabIndex)
-      }
-    }
-  }
 }

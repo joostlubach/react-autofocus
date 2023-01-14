@@ -1,4 +1,5 @@
 export * from './AutofocusContext'
 export * from './domutil'
+export { default as FocusTrap } from './FocusTrap'
 export { default as config, configure } from './config'
 export type { Config } from './config'

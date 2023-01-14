@@ -1,9 +1,11 @@
 import React from 'react'
 import { useTimer } from 'react-timer'
-import { isFunction } from 'lodash'
+import { isArray, isFunction } from 'lodash'
+import { sparse } from 'ytil'
 import { memo } from '~/ui/component'
 import { usePrevious } from '~/ui/hooks'
-import { focusFirst, FocusFirstOptions, trapFocus } from './domutil'
+import { focusFirst, FocusInContainerOptions } from './domutil'
+import FocusTrap from './FocusTrap'
 
 interface AutofocusContext {
   enabled:       boolean
@@ -32,26 +34,29 @@ export interface AutofocusProviderProps {
    *
    * Note that you have to specify {@link containerRef} as well for this to work.
    */
-  defaultFocus?: boolean | string | FocusFirstOptions
+  defaultFocus?: boolean | string | FocusInContainerOptions
 
   /**
    * Set to true to trap the focus in this container, i.e. to prevent the focus from leaving this
    * container. This is useful for modal dialogs, where you want to prevent the user from accidentally
    * focusing something outside the dialog.
    *
-   * Note that you have to specify {@link containerRef} as well for this to work.
+   * Setting it to `true` will use the container specified in {@link containerRef} as the focus trap.
+   * Alternatively, you can specify explicit containers to trap the focus in.
    */
-  trap?: boolean
+  trap?: boolean | RefLike<Element>[]
 
   /**
    * Specify a ref to the container element that contains the focusable components. This is required
    * for {@link defaultFocus} or {@link trap} to work.
    */
-  containerRef?: React.RefObject<Element> | (() => Element | null | undefined)
+  containerRef?: RefLike<Element>
 
   /** Children. */
   children?: React.ReactNode
 }
+
+export type RefLike<E> = React.RefObject<E> | (() => E | null | undefined)
 
 export const AutofocusProvider = memo('AutofocusProvider', (props: AutofocusProviderProps) => {
 
@@ -120,10 +125,11 @@ const AutofocusProviderContent = memo('AutofocusProviderContent', (props: Autofo
     if (!trap) { return }
     if (!enabled) { return }
 
-    const container = isFunction(containerRef) ? containerRef() : containerRef?.current
-    if (container == null) { return }
+    const containerRefs = isArray(trap) ? trap : [containerRef]
+    const containers    = sparse(containerRefs.map(it => isFunction(it) ? it() : it?.current))
+    if (containers.length === 0) { return }
 
-    return trapFocus(container)
+    return FocusTrap.push(containers)
   }, [trap, containerRef, enabled])
 
   const context = React.useMemo((): AutofocusContext => ({
