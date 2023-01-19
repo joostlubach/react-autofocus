@@ -13,13 +13,19 @@ function focusFirstOrLast(container: Element, first: boolean, options: FocusInCo
     selector = focusableSelectors(options).join(', '),
     select   = false,
     default: _default = true,
+    ignoreAutofocusAttribute = false,
   } = options
 
   if (_default && container.contains(document.activeElement)) {
     return
   }
 
-  const focusables = Array.from(container.querySelectorAll(selector)).filter(it => it instanceof HTMLElement) as HTMLElement[]
+  let focusables = Array.from(container.querySelectorAll(selector))
+    .filter(it => it instanceof HTMLElement) as HTMLElement[]
+
+  if (!ignoreAutofocusAttribute) {
+    focusables = focusables.filter(it => ignoreAutofocusAttribute || it.autofocus)
+  }
   if (focusables.length === 0) { return }
 
   const focusable = first ? focusables[0] : focusables[focusables.length - 1]
@@ -67,4 +73,9 @@ export interface FocusInContainerOptions extends FocusableSelectorOptions {
    * Only perform the focus if no other element within the container is focused (default: true).
    */
   default?: boolean
+
+  /**
+   * Whether to ignore the autofocus attribute on inputs.
+   */
+  ignoreAutofocusAttribute?: boolean
 }
