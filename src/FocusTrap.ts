@@ -1,4 +1,4 @@
-import { clamp } from 'lodash'
+import { clamp, findLastIndex } from 'lodash'
 import { focusFirst, focusLast } from './domutil'
 
 export default class FocusTrap {
@@ -63,8 +63,8 @@ export default class FocusTrap {
     const {target} = event
     if (!(target instanceof HTMLElement)) { return }
 
-    // Find the container that contains the target element.
-    const index = this.containers.findIndex(it => it.contains(target))
+    // Find the container that contains the target element. Go reverse to try to find the closest ancestor first.
+    const index = findLastIndex(this.containers, it => it.contains(target))
 
     if (index >= 0) {
       // If the element is found in any of our containers, allow the focus. Remember where
@@ -90,10 +90,12 @@ export default class FocusTrap {
       event.preventDefault()
       event.stopImmediatePropagation()
 
-      if (FocusTrap.direction > 0) {
-        focusFirst(this.containers[nextIndex])
-      } else {
-        focusLast(this.containers[nextIndex])
+      const focused = FocusTrap.direction > 0
+        ? focusFirst(this.containers[nextIndex], {ignoreAutofocusAttribute: true})
+        : focusLast(this.containers[nextIndex], {ignoreAutofocusAttribute: true})
+
+      if (!focused && document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
       }
     }
   }

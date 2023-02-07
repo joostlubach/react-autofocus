@@ -1,11 +1,11 @@
 import config from './config'
 
 export function focusFirst(container: Element, options: FocusInContainerOptions = {}) {
-  focusFirstOrLast(container, true, options)
+  return focusFirstOrLast(container, true, options)
 }
 
 export function focusLast(container: Element, options: FocusInContainerOptions = {}) {
-  focusFirstOrLast(container, false, options)
+  return focusFirstOrLast(container, false, options)
 }
 
 function focusFirstOrLast(container: Element, first: boolean, options: FocusInContainerOptions = {}) {
@@ -17,7 +17,7 @@ function focusFirstOrLast(container: Element, first: boolean, options: FocusInCo
   } = options
 
   if (_default && container.contains(document.activeElement)) {
-    return
+    return false
   }
 
   let focusables = Array.from(container.querySelectorAll(selector))
@@ -26,13 +26,16 @@ function focusFirstOrLast(container: Element, first: boolean, options: FocusInCo
   if (!ignoreAutofocusAttribute) {
     focusables = focusables.filter(it => ignoreAutofocusAttribute || it.autofocus)
   }
-  if (focusables.length === 0) { return }
+  if (focusables.length === 0) { return false }
 
   const focusable = first ? focusables[0] : focusables[focusables.length - 1]
+
   focusable.focus()
   if (select && focusable instanceof HTMLInputElement) {
     focusable.select()
   }
+
+  return true
 }
 
 export function focusableSelectors(options: FocusableSelectorOptions = {}) {
