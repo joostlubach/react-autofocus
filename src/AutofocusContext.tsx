@@ -1,7 +1,6 @@
 import React from 'react'
 import { useTimer } from 'react-timer'
-import { isArray, isFunction } from 'lodash'
-import { sparse } from 'ytil'
+import { isFunction } from 'lodash'
 import { memo } from '~/ui/component'
 import { usePrevious } from '~/ui/hooks'
 import { focusFirst, FocusInContainerOptions } from './domutil'
@@ -37,18 +36,19 @@ export interface AutofocusProviderProps {
   defaultFocus?: boolean | string | FocusInContainerOptions
 
   /**
-   * Set to true to trap the focus in this container, i.e. to prevent the focus from leaving this
-   * container. This is useful for modal dialogs, where you want to prevent the user from accidentally
-   * focusing something outside the dialog.
+   * Set to true to trap or exclude the focus in this container. This is useful for modal dialogs, where
+   * you want to prevent the user from accidentally focusing something outside the dialog, o
+   * alternatively for tab panels, where you want to prevent the user from focusing in invisible tabs
+   * which for some reason is left in the DOM.
    *
-   * Setting it to `true` will use the container specified in {@link containerRef} as the focus trap.
-   * Alternatively, you can specify explicit containers to trap the focus in.
+   * Setting it to `true` will trap the focus inside the container. Setting it to `'exclude'` will
+   * instead prevent focus from getting into the container if {@link enabled} is set to `false`.
    */
-  trap?: boolean | RefLike<Element>[]
+  trap?: boolean | 'exclude'
 
   /**
-   * Specify a ref to the container element that contains the focusable components. This is required
-   * for {@link defaultFocus} or {@link trap} to work.
+   * Specify a ref to the container element that contains the focusable components. If you don't
+   * specify it, the container from the next `<AutofocusProvider/>` up is used.
    */
   containerRef?: RefLike<Element>
 
@@ -117,19 +117,27 @@ const AutofocusProviderContent = memo('AutofocusProviderContent', (props: Autofo
         typeof defaultFocus === 'string' ? {selector: defaultFocus} :
         defaultFocus
 
-      focusFirst(container, options)
+      // First try to focus on an explicit autofocus control. If not found, simply focus
+      // on the first element.
+      if (!focusFirst(container, {...options, autofocus: true})) {
+        focusFirst(container, options)
+      }
     }, 0)
   }, [containerRef, defaultFocus, enabled, prevEnabled, timer])
 
   React.useLayoutEffect(() => {
     if (!trap) { return }
-    if (!enabled) { return }
 
-    const containerRefs = isArray(trap) ? trap : [containerRef]
-    const containers    = sparse(containerRefs.map(it => isFunction(it) ? it() : it?.current))
-    if (containers.length === 0) { return }
+    const container = isFunction(containerRef) ? containerRef() : containerRef?.current
+    if  (container == null) { return }
 
-    return FocusTrap.push(containers)
+    if (trap === 'exclude' && !enabled) {
+      return FocusTrap.exclude(container)
+    }
+
+    if (trap === true && enabled) {
+      return FocusTrap.trap(container)
+    }
   }, [trap, containerRef, enabled])
 
   const context = React.useMemo((): AutofocusContext => ({

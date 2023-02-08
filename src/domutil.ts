@@ -8,24 +8,33 @@ export function focusLast(container: Element, options: FocusInContainerOptions =
   return focusFirstOrLast(container, false, options)
 }
 
+export function findFocusablesIn(container: Element, options: FocusInContainerOptions = {}) {
+  const {
+    selector  = focusableSelectors(options).join(', '),
+    autofocus = false,
+  } = options
+
+  let focusables = Array.from(container.querySelectorAll(selector))
+    .filter(it => it instanceof HTMLElement) as HTMLElement[]
+
+  if (autofocus) {
+    focusables = focusables.filter(it => it.autofocus)
+  }
+
+  return focusables
+}
+
 function focusFirstOrLast(container: Element, first: boolean, options: FocusInContainerOptions = {}) {
   const {
-    selector = focusableSelectors(options).join(', '),
-    select   = false,
     default: _default = true,
-    ignoreAutofocusAttribute = false,
+    select = false,
   } = options
 
   if (_default && container.contains(document.activeElement)) {
     return false
   }
 
-  let focusables = Array.from(container.querySelectorAll(selector))
-    .filter(it => it instanceof HTMLElement) as HTMLElement[]
-
-  if (!ignoreAutofocusAttribute) {
-    focusables = focusables.filter(it => ignoreAutofocusAttribute || it.autofocus)
-  }
+  const focusables = findFocusablesIn(container, options)
   if (focusables.length === 0) { return false }
 
   const focusable = first ? focusables[0] : focusables[focusables.length - 1]
@@ -61,12 +70,19 @@ export interface FocusableSelectorOptions {
   exclude?:  string[]
 }
 
-export interface FocusInContainerOptions extends FocusableSelectorOptions {
+export interface FindFocusableOptions extends FocusableSelectorOptions {
   /**
    * Specify any specific CSS selector to find focusable elements.
    */
   selector?: string
 
+  /**
+   * Set to `true` to exclude all elements that don't have an `autofocus` attribute.
+   */
+  autofocus?: boolean
+}
+
+export interface FocusInContainerOptions extends FindFocusableOptions {
   /**
    * Select on focus (input elements only)?
    */
@@ -76,9 +92,4 @@ export interface FocusInContainerOptions extends FocusableSelectorOptions {
    * Only perform the focus if no other element within the container is focused (default: true).
    */
   default?: boolean
-
-  /**
-   * Whether to ignore the autofocus attribute on inputs.
-   */
-  ignoreAutofocusAttribute?: boolean
 }
