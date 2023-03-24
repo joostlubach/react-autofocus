@@ -2,7 +2,6 @@ import React from 'react'
 import { useTimer } from 'react-timer'
 import { isFunction } from 'lodash'
 import { memo } from '~/ui/component'
-import { usePrevious } from '~/ui/hooks'
 import { focusFirst, FocusInContainerOptions } from './domutil'
 import FocusTrap from './FocusTrap'
 
@@ -97,11 +96,14 @@ const AutofocusProviderContent = memo('AutofocusProviderContent', (props: Autofo
   } = props
 
   const timer       = useTimer()
-  const prevEnabled = usePrevious(enabled)
+  const prevEnabled = React.useRef(enabled)
 
   React.useLayoutEffect(() => {
     if (defaultFocus === false) { return }
-    if (enabled === prevEnabled) { return }
+    
+    if (enabled === prevEnabled.current) { return }
+    prevEnabled.current = enabled
+
     if (!enabled) { return }
 
     // Use a timer, because we allow specific components with `autoFocus` functionality to go first. Only if
