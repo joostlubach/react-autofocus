@@ -1,7 +1,6 @@
 import React from 'react'
 import { useTimer } from 'react-timer'
 import { isFunction } from 'lodash'
-import { memo } from '~/ui/component'
 import { focusFirst, FocusInContainerOptions } from './domutil'
 import FocusTrap from './FocusTrap'
 
@@ -57,7 +56,7 @@ export interface AutofocusProviderProps {
 
 export type RefLike<E> = React.RefObject<E> | (() => E | null | undefined)
 
-export const AutofocusProvider = memo('AutofocusProvider', (props: AutofocusProviderProps) => {
+export const AutofocusProvider = (props: AutofocusProviderProps) => {
 
   const {
     enabled,
@@ -79,13 +78,13 @@ export const AutofocusProvider = memo('AutofocusProvider', (props: AutofocusProv
     </AutofocusContext.Consumer>
   )
 
-})
+}
 
 interface AutofocusProviderContentProps extends Omit<AutofocusProviderProps, 'enabled'> {
   enabled: boolean
 }
 
-const AutofocusProviderContent = memo('AutofocusProviderContent', (props: AutofocusProviderContentProps) => {
+const AutofocusProviderContent = (props: AutofocusProviderContentProps) => {
 
   const {
     enabled,
@@ -153,7 +152,7 @@ const AutofocusProviderContent = memo('AutofocusProviderContent', (props: Autofo
     </AutofocusContext.Provider>
   )
 
-})
+}
 
 export interface AutofocusRootProps {
   children?: React.ReactNode
