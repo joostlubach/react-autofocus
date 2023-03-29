@@ -86,13 +86,6 @@ export default class FocusTrap {
       allowed = trap.mode === FocusTrapMode.trap
     }
 
-    // console.groupCollapsed('focus', target)
-    // console.log('stack', this.stack)
-    // console.log('index', index)
-    // console.log('trap', trap)
-    // console.log('allowed', allowed)
-    // console.groupEnd()
-
     if (!allowed) {
       // If not allowed, prevent the focus.
       event.preventDefault()
