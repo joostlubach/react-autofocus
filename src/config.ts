@@ -29,3 +29,7 @@ export function configure(cfg: DeepPartial<Config> | ((config: Config) => any)) 
     merge(config, cfg)
   }
 }
+
+type DeepPartial<M> = {
+  [k in keyof M]?: M[k] extends Record<string, any> ? DeepPartial<M[k]> : M[k]
+}
