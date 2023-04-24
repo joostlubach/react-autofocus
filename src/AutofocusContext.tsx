@@ -99,7 +99,7 @@ const AutofocusProviderContent = (props: AutofocusProviderContentProps) => {
 
   React.useLayoutEffect(() => {
     if (defaultFocus === false) { return }
-    
+
     if (enabled === prevEnabled.current) { return }
     prevEnabled.current = enabled
 
