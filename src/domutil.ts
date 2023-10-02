@@ -64,6 +64,26 @@ export function focusableSelectors(options: FocusableSelectorOptions = {}) {
   return selectors.map(it => `${it}${excludeSuffix}`)
 }
 
+export function focusNext(from: HTMLElement, options: FocusableSelectorOptions = {}) {
+  const element = findNextFocusableElement(from, options)
+  if (element != null) {
+    element.focus()
+  }
+}
+
+export function findNextFocusableElement(from: HTMLElement, options: FocusableSelectorOptions = {}) {
+  const selectors      = focusableSelectors(options)
+  const selector       = selectors.join(', ')
+  const focusables     = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
+
+  const currentIndex   = focusables.indexOf(from)
+  if (currentIndex < 0) {
+    return null
+  } else {
+    return focusables[(currentIndex + 1 % focusables.length)]
+  }
+}
+
 export interface FocusableSelectorOptions {
   fields?:   boolean
   buttons?:  boolean
