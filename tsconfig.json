@@ -1,23 +1,25 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "outDir": "dist",
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
     "useDefineForClassFields": true,
     "allowJs": false,
     "skipLibCheck": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "jsx": "react",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "Node10",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "*": ["../*"]
-    }
+    "rootDir": "src"
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ]
 }

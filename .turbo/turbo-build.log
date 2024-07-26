@@ -1,0 +1,20 @@
+
+> react-autofocus@0.0.1 build /Users/joost/Work/eadb/dispatch/vendor/react-autofocus
+> npm run clean && npm run build:tsc
+
+
+> react-autofocus@0.0.1 clean
+> rimraf dist
+
+
+> react-autofocus@0.0.1 build:tsc
+> npm run build:tsc:esm && npm run build:tsc:cjs
+
+
+> react-autofocus@0.0.1 build:tsc:esm
+> tsc -p tsconfig.prod.json --module esnext --outDir dist/esm --declarationDir dist/types
+
+
+> react-autofocus@0.0.1 build:tsc:cjs
+> tsc -p tsconfig.prod.json --module commonjs --outDir dist/cjs --declaration false --declarationMap false
+
