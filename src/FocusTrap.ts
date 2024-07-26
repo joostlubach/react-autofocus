@@ -11,7 +11,7 @@ export default class FocusTrap {
   //------
   // Stack
 
-  private static stack: FocusTrap[] = []
+  private static stack:     FocusTrap[] = []
   private static direction: -1 | 1 = 1
 
   public static trap(container: Element) {
@@ -74,7 +74,7 @@ export default class FocusTrap {
     // Find the closest container that is a trap. As we've already sorted the stack from
     // outer to inner, we can just find the last index.
     const index = findLastIndex(this.stack, it => it.container.contains(target))
-    const trap  = index < 0 ? null : this.stack[index]
+    const trap = index < 0 ? null : this.stack[index]
 
     let allowed: boolean
     if (trap == null) {

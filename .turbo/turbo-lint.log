@@ -1,0 +1,4 @@
+
+> react-autofocus@0.0.1 lint /Users/joost/Work/eadb/dispatch/vendor/react-autofocus
+> eslint src --ext .ts,.tsx "--fix"
+

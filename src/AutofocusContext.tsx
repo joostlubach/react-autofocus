@@ -94,7 +94,7 @@ const AutofocusProviderContent = (props: AutofocusProviderContentProps) => {
     children,
   } = props
 
-  const timer       = useTimer()
+  const timer = useTimer()
   const prevEnabled = React.useRef(enabled)
 
   React.useLayoutEffect(() => {
@@ -115,8 +115,8 @@ const AutofocusProviderContent = (props: AutofocusProviderContentProps) => {
 
       const options =
         defaultFocus === true ? {} :
-        typeof defaultFocus === 'string' ? {selector: defaultFocus} :
-        defaultFocus
+          typeof defaultFocus === 'string' ? {selector: defaultFocus} :
+            defaultFocus
 
       // First try to focus on an explicit autofocus control. If not found, simply focus
       // on the first element.
@@ -130,7 +130,7 @@ const AutofocusProviderContent = (props: AutofocusProviderContentProps) => {
     if (!trap) { return }
 
     const container = isFunction(containerRef) ? containerRef() : containerRef?.current
-    if  (container == null) { return }
+    if (container == null) { return }
 
     if (trap === 'exclude' && !enabled) {
       return FocusTrap.exclude(container)
