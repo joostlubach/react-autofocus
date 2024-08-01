@@ -2,15 +2,9 @@
   "name": "react-autofocus",
   "version": "0.0.1",
   "description": "Provide contextual information for autofocus.",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
+  "main": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "default": "./dist/cjs/index.js"
-    }
+    ".": "./src/index.ts"
   },
   "scripts": {
     "build": "npm run clean && npm run build:tsc",
