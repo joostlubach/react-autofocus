@@ -1,4 +1,4 @@
-export * from './AutofocusContext'
+export { AutofocusProvider, useAutofocus, useAutofocusContext, type AutofocusContext, type RefLike } from './autofocus'
 export * from './domutil'
 export { default as FocusTrap } from './FocusTrap'
 export { default as config, configure } from './config'
