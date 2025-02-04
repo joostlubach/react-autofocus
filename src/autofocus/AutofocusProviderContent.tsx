@@ -21,14 +21,14 @@ export const AutofocusProviderContent = (props: AutofocusProviderContentProps) =
   } = props
 
   const timer = useTimer()
-  const prevEnabled = React.useRef(enabled)
+  const prevEnabled = React.useRef<boolean | undefined>(undefined)
 
   React.useLayoutEffect(() => {
     if (defaultFocus === false) { return }
 
     if (enabled === prevEnabled.current) { return }
     prevEnabled.current = enabled
-
+    
     if (!enabled) { return }
 
     // Use a timer, because we allow specific components with `autoFocus` functionality to go first. Only if
@@ -46,8 +46,9 @@ export const AutofocusProviderContent = (props: AutofocusProviderContentProps) =
 
       // First try to focus on an explicit autofocus control. If not found, simply focus
       // on the first element.
-      if (!focusFirst(container, {...options, autofocus: true})) {
-        focusFirst(container, options)
+      
+      if (!focusFirst(container, {...options, autofocus: true, default: false})) {
+        focusFirst(container, {...options, default: false})
       }
     }, 0)
   }, [containerRef, defaultFocus, enabled, prevEnabled, timer])
