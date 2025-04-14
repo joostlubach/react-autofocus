@@ -1,6 +1,8 @@
 import { isFunction } from 'lodash'
-import React from 'react'
+import React, { ReactNode, useLayoutEffect, useMemo } from 'react'
 import { useTimer } from 'react-timer'
+import { memo } from 'react-util'
+import { usePrevious } from 'react-util/hooks'
 import FocusTrap from '../FocusTrap'
 import { focusFirst } from '../domutil'
 import { AutofocusContext } from './AutofocusContext'
@@ -10,10 +12,11 @@ export interface AutofocusProviderContentProps extends Omit<AutofocusProviderPro
   enabled: boolean
 }
 
-export const AutofocusProviderContent = (props: AutofocusProviderContentProps) => {
+export const AutofocusContainer = memo('AutofocusContainer', (props: AutofocusProviderContentProps) => {
 
   const {
     enabled,
+    contentKey,
     defaultFocus,
     containerRef,
     trap,
@@ -21,13 +24,12 @@ export const AutofocusProviderContent = (props: AutofocusProviderContentProps) =
   } = props
 
   const timer = useTimer()
-  const prevEnabled = React.useRef<boolean | undefined>(undefined)
+  const prevEnabled = usePrevious(enabled)
+  const prevContentKey = usePrevious(contentKey)
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (defaultFocus === false) { return }
-
-    if (enabled === prevEnabled.current) { return }
-    prevEnabled.current = enabled
+    if (enabled === prevEnabled && contentKey === prevContentKey) { return }
     
     if (!enabled) { return }
 
@@ -51,9 +53,9 @@ export const AutofocusProviderContent = (props: AutofocusProviderContentProps) =
         focusFirst(container, {...options, default: false})
       }
     }, 0)
-  }, [containerRef, defaultFocus, enabled, prevEnabled, timer])
+  }, [containerRef, contentKey, defaultFocus, enabled, prevContentKey, prevEnabled, timer])
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!trap) { return }
 
     const container = isFunction(containerRef) ? containerRef() : containerRef?.current
@@ -68,7 +70,7 @@ export const AutofocusProviderContent = (props: AutofocusProviderContentProps) =
     }
   }, [trap, containerRef, enabled])
 
-  const context = React.useMemo((): AutofocusContext => ({
+  const context = useMemo((): AutofocusContext => ({
     enabled,
     containerRef,
   }), [containerRef, enabled])
@@ -79,8 +81,8 @@ export const AutofocusProviderContent = (props: AutofocusProviderContentProps) =
     </AutofocusContext.Provider>
   )
 
-}
+})
 
 export interface AutofocusRootProps {
-  children?: React.ReactNode
+  children?: ReactNode
 }

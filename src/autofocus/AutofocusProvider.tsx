@@ -1,8 +1,9 @@
 import { isFunction } from 'lodash'
-import React from 'react'
+import React, { ReactNode, useCallback } from 'react'
+import { memo } from 'react-util'
 import { FocusInContainerOptions } from '../domutil'
+import { AutofocusContainer } from './AutofocusContainer'
 import { AutofocusContext } from './AutofocusContext'
-import { AutofocusProviderContent } from './AutofocusProviderContent'
 import { RefLike } from './types'
 
 export interface AutofocusProviderProps {
@@ -15,7 +16,14 @@ export interface AutofocusProviderProps {
    *    autofocusable component will be focused. This allows for autofocus to happen when popups or dialogs
    *    appear, or when a form is split into multiple 'screens'.
    */
-  enabled: boolean | ((parentEnabled: boolean) => boolean)
+  enabled?: boolean | ((parentEnabled: boolean) => boolean)
+
+  /**
+   * For more control over timing, you can use a content key. The idea is that whenever this key changes,
+   * the focus will be reset. This is useful for example when you have a tab panel, and you want to
+   * automatically focus the first element in the new tab.
+   */
+  contentKey?: any
 
   /**
    * Optionally specify a default focus target. The value `true` is interpreted as: the first focusable
@@ -43,18 +51,18 @@ export interface AutofocusProviderProps {
   containerRef?: RefLike<Element>
 
   /** Children. */
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
-export const AutofocusProvider = (props: AutofocusProviderProps) => {
+export const AutofocusProvider = memo('AutofocusProvider', (props: AutofocusProviderProps) => {
 
   const {
-    enabled,
+    enabled = true,
   } = props
 
-  const renderContent = React.useCallback((parent: AutofocusContext) => {
+  const renderContent = useCallback((parent: AutofocusContext) => {
     return (
-      <AutofocusProviderContent
+      <AutofocusContainer
         {...props}
         enabled={isFunction(enabled) ? enabled(parent.enabled) : enabled && parent.enabled}
         containerRef={props.containerRef ?? parent.containerRef}
@@ -68,4 +76,4 @@ export const AutofocusProvider = (props: AutofocusProviderProps) => {
     </AutofocusContext.Consumer>
   )
 
-}
+})
