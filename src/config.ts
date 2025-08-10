@@ -1,4 +1,5 @@
 import { isFunction, merge } from 'lodash'
+import { DeepPartial } from 'ytil'
 
 export interface Config {
   selectors: FocusableSelectors
@@ -28,8 +29,4 @@ export function configure(cfg: DeepPartial<Config> | ((config: Config) => any)) 
   } else {
     merge(config, cfg)
   }
-}
-
-type DeepPartial<M> = {
-  [k in keyof M]?: M[k] extends Record<string, any> ? DeepPartial<M[k]> : M[k]
 }
