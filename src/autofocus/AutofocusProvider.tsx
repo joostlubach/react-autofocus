@@ -48,7 +48,7 @@ export interface AutofocusProviderProps {
    * Specify a ref to the container element that contains the focusable components. If you don't
    * specify it, the container from the next `<AutofocusProvider/>` up is used.
    */
-  containerRef?: RefLike<Element>
+  containerRef?: RefLike<Element | null>
 
   /** Children. */
   children?: ReactNode
