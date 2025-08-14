@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { AutofocusContext } from './AutofocusContext'
 
 export function useAutofocusContext() {
@@ -7,7 +7,7 @@ export function useAutofocusContext() {
 
 export function useAutofocus(callback: () => any) {
   const {enabled} = useAutofocusContext()
-  const prevEnabledRef = React.useRef<boolean>()
+  const prevEnabledRef = useRef<boolean | undefined>(undefined)
 
   React.useLayoutEffect(() => {
     const prevEnabled = prevEnabledRef.current
