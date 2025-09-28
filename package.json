@@ -2,13 +2,23 @@
   "name": "react-autofocus",
   "version": "0.0.1",
   "description": "Provide contextual information for autofocus.",
-  "main": "./src/index.ts",
+  "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js"
+    }
   },
   "scripts": {
-    "lint": "eslint src --ext .ts,.tsx",
+    "build": "npm run clean && npm run build:tsc",
+    "build:tsc": "npm run build:tsc:esm && npm run build:tsc:cjs",
+    "build:tsc:esm": "tsc -p tsconfig.prod.json --module esnext --outDir dist/esm --declarationDir dist/types",
+    "build:tsc:cjs": "tsc -p tsconfig.prod.json --module commonjs --outDir dist/cjs --declaration false --declarationMap false",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "lint": "eslint src --ext ts,tsx",
     "check": "tsc -p . --noEmit",
     "test": "NODE_ENV=test jest"
   },
