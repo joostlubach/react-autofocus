@@ -1,8 +1,10 @@
+/* eslint-disable react-refresh/only-export-components */
+
+import { isFunction } from 'lodash'
 import React from 'react'
 import { useTimer } from 'react-timer'
-import { isFunction } from 'lodash'
-import { focusFirst, FocusInContainerOptions } from './domutil'
 import FocusTrap from './FocusTrap'
+import { focusFirst, FocusInContainerOptions } from './domutil'
 
 interface AutofocusContext {
   enabled:       boolean
@@ -164,7 +166,7 @@ export function useAutofocusContext() {
 
 export function useAutofocus(callback: () => any) {
   const {enabled} = useAutofocusContext()
-  const prevEnabledRef = React.useRef<boolean>()
+  const prevEnabledRef = React.useRef<boolean>(false)
 
   React.useLayoutEffect(() => {
     const prevEnabled = prevEnabledRef.current
