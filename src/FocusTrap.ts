@@ -101,7 +101,6 @@ export default class FocusTrap {
 
     let container: Element | null = element
     while (container != null) {
-      // eslint-disable-next-line no-loop-func
       const trap = this.stack.find(it => it.container === container)
       if (trap?.mode === FocusTrapMode.trap) {
         break
