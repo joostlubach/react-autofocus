@@ -23,17 +23,16 @@
     "test": "NODE_ENV=test jest"
   },
   "peerDependencies": {
-    "react": "^18.0"
+    "react": ">=18.0"
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "react": "^18.0",
     "react-timer": "workspace:^",
     "ytil": "workspace:^"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.20",
-    "@types/react": "^18.0",
+    "@types/react": "^19.1",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "copyfiles": "^2.4.1",
